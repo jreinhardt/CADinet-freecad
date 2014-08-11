@@ -1,8 +1,9 @@
 CADinet-FreeCAD
 ===============
 
-CADinet is a web application that allows to upload 3D models via a REST API for
-publishing on the web and in the [thingtracker network](https://thingtracker.net).
+[CADinet](https://github.com/jreinhardt/CADinet) is a web application that
+allows to upload 3D models via a REST API for publishing on the web and in the
+[thingtracker network](https://thingtracker.net).
 
 CADinet-FreeCAD is a FreeCAD macro that uses this API to provide 1-click upload
 and publishing of parts from FreeCAD.
@@ -27,7 +28,7 @@ registration you get a username and a random password. Write them down, we will
 need them later. If you loose these credentials, your account on the CADinet is
 lost.
 
-Next we need to install the FreeCAD macro. Download the `cadinet.FCMacro` file
+Next we need to install the FreeCAD macro. Download the [`cadinet.FCMacro`](https://raw.githubusercontent.com/jreinhardt/CADinet-freecad/master/cadinet.FCMacro) file
 from the CADinet-FreeCAD repository and place it in your macro directory. If
 you are unsure where your macro directory is located, you can look it up in
 FreeCAD under Preferences in the Macros tab under Macro Path. Copy the file
@@ -47,6 +48,9 @@ How to use
 Open a model that you want to upload to the CADinet. You can enter a
 descriptive comment for the model by opening the Project information in the
 file menu.
+
+Note that CADinet only accepts models licenced under certain licenses, to avoid
+legal difficulties with the hosting and distribution of uploaded models.
 
 Then execute the cadinet macro using the Macro menu. Depending on the
 complexity of the model and your internet connection it might take a while but
