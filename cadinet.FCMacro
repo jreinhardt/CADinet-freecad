@@ -25,19 +25,22 @@ import FreeCADGui
 import json
 from hashlib import sha1
 from os.path import basename
+from ConfigParser import ConfigParser
 
 #Configuration
 
 #to use this macro, you need to register with an instance of cadinet
 #(https://github.com/jreinhardt/CADinet) to obtain a username and password. Then
-#you have to edit this file and enter the credentials you got from the cadinet,
-#as well as the url of the cadinet.
+#you have to create a configuration file called cadinet.cfg and enter the
+#credentials you got from the cadinet, as well as the url of the cadinet.
 
-USERNAME = 'username'
-PASSWORD = 'fcd62a67b23b32af'
-CADINET_HOST = 'https://thingcollector-bolts.rhcloud.com/cadinet'
+config = ConfigParser()
+config.read('cadinet.cfg')
 
-#end of configuration, do not change anything from here on
+
+USERNAME = config.get('user','username')
+PASSWORD =  config.get('user','password')
+CADINET_HOST = config.get('cadinet','url')
 
 headers = {'content-type': 'application/json'}
 auth = HTTPBasicAuth(USERNAME,PASSWORD)

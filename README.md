@@ -34,13 +34,23 @@ you are unsure where your macro directory is located, you can look it up in
 FreeCAD under Preferences in the Macros tab under Macro Path. Copy the file
 there.
 
-Now edit the file with a text editor. At the beginning there is a section with
-configuration variables. Substitute your username and password, and the url of
-the CADinet you registered with.
+Configuration
+-------------
+
+Configuration is supplied in form of a ini style config file. You need to
+supply your credentials and the url of the cadinet. The configuration file will look like this
+
+    [User]
+    username: myname
+    password: fcd62a67b23b32af
+
+    [Cadinet]
+    url: https://thingcollector-bolts.rhcloud.com/cadinet
+
+Toolbar button
+--------------
 
 If you want you can setup a [toolbar button](http://freecadweb.org/wiki/index.php?title=Macros_recipes#How_to_use.3F)
-
-That's it!
 
 How to use
 ----------
