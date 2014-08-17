@@ -23,6 +23,7 @@ from requests.auth import HTTPBasicAuth
 import FreeCAD
 import FreeCADGui
 import json
+from hashlib import sha1
 from os.path import basename
 
 #Configuration
@@ -46,7 +47,7 @@ doc = FreeCAD.ActiveDocument
 if not doc is None:
 		#upload the thing
 		thing = {
-			'id' : doc.Uid,
+			'id' : unicode(UUID(hex=sha1(doc.Content).hexdigest[:32])),
 			'title' : doc.Name,
 			'description' : doc.Comment,
 			'license' : doc.License,
