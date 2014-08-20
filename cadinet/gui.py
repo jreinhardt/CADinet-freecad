@@ -20,7 +20,7 @@
 
 from PySide import QtCore, QtGui
 from FreeCADGui import PySideUic as uic
-import FreeCAD
+import FreeCAD, FreeCADGui
 from ConfigParser import ConfigParser
 from os.path import basename, dirname, join
 from uuid import UUID
@@ -58,6 +58,33 @@ LICENSES = {
     "GPL 3.0+" : "http://www.gnu.org/licenses/gpl-3.0",
 }
 
+def get_3d_data(doc,obj):
+	result = {
+		'facets' : [],
+		'vertices' : []
+	}
+
+	if FreeCADGui:
+		pos = FreeCADGui.getDocument(doc.Name).ActiveView.viewPosition().Base
+		result["camera"] = {'x' : pos.x, 'y' : pos.y, 'z' : pos.z}
+	else:
+		result["camera"] = {'x' : 0., 'y' : 0., 'z' : 1000.}
+
+	if obj.isDerivedFrom("Part::Feature"):
+		fcmesh = obj.Shape.tessellate(0.1)
+		for v in fcmesh[0]:
+			result["vertices"].append((v.x,v.y,v.z))
+		for f in fcmesh[1]:
+			result["facets"].append(f)
+	elif obj.isDerivedFrom("Mesh::Feature"):
+		for p in sorted(obj.Mesh.Points,key=lambda x: x.Index):
+			result["vertices"].append((p.x,p.y,p.z))
+		for f in obj.Mesh.Facets:
+			result["facets"].append(f.PointIndices)
+
+	return result
+
+
 licenses = sorted(LICENSES.keys())
 
 def unpack_response(r,parent):
@@ -83,6 +110,12 @@ class CadinetDialog(QCadinetDialog):
 		self.doc = doc
 
 		self.ui.licenseComboBox.addItems(licenses)
+		self.features = []
+		for obj in doc.findObjects():
+			if obj.TypeId.startswith('Sketcher'):
+				continue
+			self.features.append(obj.Name)
+		self.ui.featureToPreviewComboBox.addItems(self.features)
 
 		urlValidator = QtGui.QRegExpValidator()
 		urlValidator.setRegExp(QtCore.QRegExp('https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]'))
@@ -107,6 +140,10 @@ class CadinetDialog(QCadinetDialog):
 		self.ui.thingTitleLineEdit.setText(doc.Name)
 		self.ui.descriptionPlainTextEdit.setPlainText(doc.Comment)
 		self.ui.licenseComboBox.setCurrentIndex(licenses.index(doc.License))
+		if not doc.ActiveObject is None:
+			self.ui.featureToPreviewComboBox.setCurrentIndex(self.features.index(doc.ActiveObject.Name))
+		else:
+			self.ui.featureToPreviewComboBox.setCurrentIndex(len(self.features)-1)
 
 		self.accepted.connect(self.on_accepted)
 
@@ -174,8 +211,6 @@ class CadinetDialog(QCadinetDialog):
 		res = unpack_response(r,self)
 		if res is None: return
 
-		print res
-
 		res = r.json()
 		#upload fcstd file
 		if self.doc.FileName:
@@ -185,4 +220,10 @@ class CadinetDialog(QCadinetDialog):
 			res_fcstd = unpack_response(r_fcstd,self)
 			if res_fcstd is None: return
 
-			print res_fcstd
+
+		if self.ui.upload3DPreviewCheckBox.isChecked():
+			data = json.dumps(get_3d_data(self.doc,self.doc.getObject(self.ui.featureToPreviewComboBox.currentText())))
+			r_3dview = requests.post(res['3dview_url'],data=data,headers=headers,auth=auth)
+
+			res_fcstd = unpack_response(r_fcstd,self)
+			if res_fcstd is None: return
