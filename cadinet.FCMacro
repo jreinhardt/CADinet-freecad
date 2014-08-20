@@ -1,0 +1,10 @@
+import cadinet.gui
+import FreeCAD
+from os.path import dirname
+
+doc = FreeCAD.ActiveDocument
+
+if not doc is None:
+	root_dir = dirname(__file__)
+	d = cadinet.gui.CadinetDialog(doc,root_dir)
+	d.exec_()
